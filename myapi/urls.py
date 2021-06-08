@@ -5,6 +5,8 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register(r'опросы', views.QuestViewSet)
+router.register(r'вопросы', views.IssueViewSet)
+router.register(r'тип ответа', views.IssueTypeViewSet)
 
 
 urlpatterns = [
