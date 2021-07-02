@@ -1,6 +1,7 @@
 from django.db import models
+from rest_framework import request
 
-# Create your models here.
+from authentication.models import User
 
 
 class IssueType(models.Model):
@@ -14,10 +15,34 @@ class IssueType(models.Model):
         verbose_name_plural = 'типы вопросов'
 
 
+class AnswerVariant(models.Model):
+    variant = models.CharField(max_length=400, verbose_name='вариант ответа')
+
+    def __str__(self):
+        return self.variant
+
+    class Meta:
+        verbose_name = 'Вариант ответа'
+        verbose_name_plural = 'Варианты ответов'
+
+
 class Issue(models.Model):
     issue_name = models.CharField(max_length=200, verbose_name='вопрос')
-    issue_type = models.ForeignKey(IssueType, on_delete=models.PROTECT, null=True, blank=True, verbose_name='тип вопроса')
-
+    issue_type = models.ForeignKey(
+        IssueType,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name='тип вопроса'
+    )
+    variants = models.ManyToManyField(AnswerVariant, blank=True, verbose_name='вариант ответа')
+    # answer = models.ForeignKey(
+    #     Answer,
+    #     on_delete=models.PROTECT,
+    #     null=True,
+    #     blank=True,
+    #     verbose_name='ответ'
+    # )
 
     def __str__(self):
         return self.issue_name
@@ -25,6 +50,20 @@ class Issue(models.Model):
     class Meta:
         verbose_name = 'Вопрос'
         verbose_name_plural = 'Вопросы'
+
+
+class Answer(models.Model):
+    user_name = models.CharField(max_length=400, blank=True, null=True, verbose_name='пользователь')
+    session = models.CharField(max_length=400, blank=True, null=True, verbose_name='ключ сессии')
+    issue = models.ForeignKey(Issue, on_delete=models.PROTECT, blank=True, null=True, verbose_name='вопрос')
+    answer = models.CharField(max_length=400, blank=True, null=True, verbose_name='ответ')
+
+    def __str__(self):
+        return self.answer
+
+    class Meta:
+        verbose_name = 'Ответ'
+        verbose_name_plural = 'Ответы'
 
 
 class Questionnaire(models.Model):
@@ -41,26 +80,12 @@ class Questionnaire(models.Model):
         verbose_name = 'Опрос'
         verbose_name_plural = 'Опросы'
 
-
-class User(models.Model):
-    name = models.CharField(max_length=200, verbose_name='Имя пользователя')
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
-
-class Answer(models.Model):
-    user_name = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name='id пользователя')
-    issue_name = models.ForeignKey(Issue, on_delete=models.PROTECT, verbose_name='вопрос')
-    answer = models.CharField(max_length=400, verbose_name='ответ', blank=True, null=True)
-
-    def __str__(self):
-        return self.answer
-
-    class Meta:
-        verbose_name = 'Ответ'
-        verbose_name_plural = 'Ответы'
+# class User(models.Model):
+#     name = models.CharField(max_length=200, verbose_name='Имя пользователя')
+#
+#     def __str__(self):
+#         return self.name
+#
+#     class Meta:
+#         verbose_name = 'Пользователь'
+#         verbose_name_plural = 'Пользователи'
